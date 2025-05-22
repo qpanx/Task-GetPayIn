@@ -1,0 +1,26 @@
+@echo off
+ECHO Starting Content Scheduler Application...
+
+ECHO Installing PHP dependencies...
+call composer install
+
+ECHO Installing NPM dependencies...
+call npm install
+
+ECHO Setting up environment...
+IF NOT EXIST .env (
+    ECHO Creating .env file...
+    copy .env.example .env
+    call php artisan key:generate
+)
+
+ECHO Setting up database...
+call php artisan migrate --seed
+
+ECHO Building frontend assets...
+call npm run build
+
+ECHO Starting the server...
+call php artisan serve
+
+ECHO Content Scheduler is running! 
