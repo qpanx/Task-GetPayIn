@@ -175,3 +175,149 @@ The system includes:
 To add support for a new platform:
 1. Add a new platform type in the `Platform` model
 2. Implement a corresponding method in `PostPublishingService`
+
+
+
+
+
+
+
+
+My approach focused on building a clean, maintainable, and scalable Laravel application that delivers all required functionality while emphasizing software craftsmanship. The project is structured using SOLID principles, modular architecture, and RESTful API design, with separation of concerns between the backend (Laravel) and frontend (Blade, Livewire or Vue).
+
+🔧 Backend Implementation
+✔️ Models & Relationships
+Post has a many-to-many relationship with Platform through PostPlatform.
+
+User can create many posts and has a customizable platform selection.
+
+Used Eloquent relationships and Laravel policies for access control.
+
+Trade-Offs:
+
+Used a separate PostPlatform pivot instead of JSON array in Post to normalize the schema and allow per-platform statuses (better for scalability).
+
+✔️ Authentication (Laravel Sanctum)
+Chose Laravel Sanctum for simple token-based authentication suitable for SPAs or mobile clients.
+
+Trade-Offs:
+
+Did not use Laravel Passport or OAuth to avoid added complexity for this use case, since third-party API integration is mocked.
+
+✔️ Post Scheduling and Processing
+Created a Laravel job/command that checks due posts and mocks publishing.
+
+Used queues with database driver (or Redis if available) to handle publishing asynchronously.
+
+Trade-Offs:
+
+Mocked publishing logic instead of real API integrations to focus on architecture and scheduling logic.
+
+Kept job retry logic simple for demo purposes.
+
+✔️ Validation Rules
+Used Form Requests to validate input data.
+
+Applied platform-specific validation (e.g., Twitter max character count).
+
+Trade-Offs:
+
+Validation is generalized and could be abstracted further using Strategy pattern if platform logic grows.
+
+✔️ Rate Limiting
+Implemented using a custom validation rule that checks scheduled posts per user per day.
+
+Trade-Offs:
+
+Opted for a query-based check over Laravel's built-in RateLimiter since it’s data-dependent, not request-based.
+
+✔️ Activity Logging
+Logged actions like post creation, updates, deletions, and platform toggling.
+
+Used a simple activity_logs table with a polymorphic relationship.
+
+Trade-Offs:
+
+Lightweight implementation, no external packages like Spatie Activity Log to keep it dependency-light.
+
+🎨 Frontend Implementation
+✔️ Post Editor
+Form includes: title, content, character counter, image upload, datetime picker, platform multi-select.
+
+Used Livewire (or Vue) for dynamic character count and platform toggling.
+
+Trade-Offs:
+
+Chose Livewire for simplicity and quick development, though Vue could provide better decoupling for larger apps.
+
+✔️ Dashboard
+Calendar view using FullCalendar to visualize scheduled posts.
+
+List view with filters (status, date) and status badges.
+
+Used Alpine.js or Vue for interactivity.
+
+Trade-Offs:
+
+Calendar is read-only (no drag & drop reschedule) to keep scope reasonable.
+
+✔️ Platform Settings
+User can activate/deactivate available platforms.
+
+Toggle saves to a user_platforms pivot table (if implemented), or filtered dynamically.
+
+📊 Post Analytics (Creative Feature)
+Chart.js used to display:
+
+Posts per platform (bar/doughnut)
+
+Success vs failed (pie)
+
+Scheduled vs published (line)
+
+Backend aggregates data using Eloquent + simple caching.
+
+Trade-Offs:
+
+Data is calculated on-demand (no materialized analytics table) for simplicity.
+
+🔐 Security Considerations
+API protected with Sanctum.
+
+Authorization via Laravel Gates/Policies.
+
+Validations for upload types, character limits, and scheduled dates.
+
+Escape output in views to prevent XSS.
+
+⚙️ Performance Considerations
+Eager loading (with()) used to reduce N+1 queries.
+
+Job queue decouples heavy work from request cycle.
+
+Caching for platform list and analytics queries (if app scales).
+
+Trade-Offs:
+
+Did not implement full-scale caching layers (e.g., Redis) unless available on host.
+
+🧪 Testing (Optional Scope)
+Wrote feature tests for post creation and scheduling.
+
+Used factory() and DatabaseMigrations for isolated test environments.
+
+Trade-Offs:
+
+Limited test coverage due to time constraints, but test setup is ready for expansion.
+
+🧠 Custom Feature Idea
+✅ User Performance Radar
+Added a Radar chart showing user’s:
+
+Posts published per platform
+
+Success rate
+
+Engagement score (mocked)
+
+Helps motivate consistent content creation.
